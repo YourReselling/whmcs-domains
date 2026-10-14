@@ -167,7 +167,7 @@ if ($manifest['type'] === 'servers') {
     rejects(fn () => $provisioner->create($input['body'], $input['path']), 'Bestellstatus unklar');
     expect(count(FakeCurl::$requests) === $before + 1, 'Ambiguous purchase was retried');
 } else {
-    expect(! function_exists($module.'_RenewDomain'), 'Fake domain renewal');
+    expect(function_exists($module.'_RenewDomain'), 'Missing cancellation-based renewal');
     expect(is_array(($module.'_getConfigArray')()), 'Registrar configuration');
     FakeCurl::$handler = static function (array $request) use ($store, &$creates): array {
         $path = parse_url($request['url'], PHP_URL_PATH);
@@ -190,6 +190,7 @@ if ($manifest['type'] === 'servers') {
     $gateway->order(['type' => 'individual'], ['years' => 1]);
     $gateway->order(['type' => 'individual'], ['years' => 1]);
     expect($creates === 1, 'Duplicate domain purchase');
+    require __DIR__.'/renewal.php';
 }
 
 foreach (array_diff(get_included_files(), $environmentIncludes) as $file) {

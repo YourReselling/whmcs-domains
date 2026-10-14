@@ -51,9 +51,10 @@ function yourresellingdomains_getConfigArray(): array
 {
     return [
         'FriendlyName' => ['Type' => 'System', 'Value' => 'Your-Reselling Domains'],
-        'Description' => ['Type' => 'System', 'Value' => 'Registrierung, Transfer, DNS, Nameserver und Synchronisierung. Explizite Verlängerungen werden von der API noch nicht unterstützt; Abrechnung und Anbieter-AutoRenew separat abstimmen.'],
+        'Description' => ['Type' => 'System', 'Value' => 'Registrierung, Transfer und Verlängerung über Kündigung zum Laufzeitende. WHMCS-Cron und Domain-Sync müssen aktiv sein.'],
         'BaseUrl' => ['FriendlyName' => 'API-Basis-URL', 'Type' => 'text', 'Size' => '60', 'Default' => 'https://resellingprovider.de/api/v1'],
         'ApiKey' => ['FriendlyName' => 'API-Key', 'Type' => 'password', 'Size' => '60'],
+        'CancellationNoticeDays' => ['FriendlyName' => 'Kündigungsvorlauf (Tage)', 'Type' => 'text', 'Size' => '4', 'Default' => '14', 'Description' => '7–90 Tage. Unbezahlte Folgeperioden werden vor Ablauf gekündigt. Rechnungen entsprechend früher fällig stellen.'],
     ];
 }
 
@@ -67,6 +68,12 @@ function yourresellingdomains_RegisterDomain(array $params): array
 function yourresellingdomains_TransferDomain(array $params): array
 {
     return WhmcsRegistrar::run('TransferDomain', $params);
+}
+
+/** Approve the purchased term by removing cancellation; the API extends the term later. */
+function yourresellingdomains_RenewDomain(array $params): array
+{
+    return WhmcsRegistrar::run('RenewDomain', $params);
 }
 
 /** GetNameservers using the registered reseller API. */

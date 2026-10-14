@@ -18,8 +18,13 @@ final class WhmcsRegistrar
     public static function run(string $action, array $params): array
     {
         try {
-            $domain = strtolower((string) ($params['domain_punycode'] ?? $params['domainname'] ?? $params['domain'] ?? (($params['sld'] ?? '').'.'.($params['tld'] ?? ''))));
-            $gateway = new DomainGateway(self::transport($params), new WhmcsDomainStore((int) ($params['domainid'] ?? 0)), $domain);
+            $domain = strtolower((string) ($params['domain_punycode'] ?? $params['domainname'] ?? $params['domain'] ?? (($params['sld'] ?? '').'.'.ltrim((string) ($params['tld'] ?? ''), '.'))));
+            $domainId = (int) ($params['domainid'] ?? 0);
+            $store = new WhmcsDomainStore($domainId);
+            $gateway = new DomainGateway(self::transport($params), $store, $domain);
+            $renewal = new DomainRenewal($gateway, $store);
+            $noticeDays = (int) (($params['CancellationNoticeDays'] ?? '') ?: 14);
+            $today = new \DateTimeImmutable('today');
             if ($action === 'RegisterDomain' || $action === 'TransferDomain') {
                 $options = ['years' => (int) ($params['regperiod'] ?? 1)];
                 if ($action === 'TransferDomain') {
@@ -33,6 +38,16 @@ final class WhmcsRegistrar
                     }
                 }
                 $gateway->order(self::contact($params), $options, $action === 'TransferDomain');
+                $renewal->reconcile(null, $noticeDays, $today, true);
+
+                return [];
+            }
+            if ($action === 'RenewDomain') {
+                $local = WhmcsRenewalAutomation::domain($domainId);
+                $expiry = $local['expiry'] ?? throw new PanelException('WHMCS-Ablaufdatum fehlt.');
+                $years = (int) ($params['regperiod'] ?? 1);
+                $key = WhmcsRenewalAutomation::operationKey($domainId, $expiry, $years);
+                $renewal->renew($years, $expiry, $key, $noticeDays, $today);
 
                 return [];
             }
@@ -87,7 +102,8 @@ final class WhmcsRegistrar
 
                 return [];
             }
-            $remote = $gateway->details();
+            $local = WhmcsRenewalAutomation::domain($domainId);
+            $remote = $renewal->reconcile($local['expiry'], $noticeDays, $today, $action === 'TransferSync', $local['cancel']);
             $expiry = ! empty($remote['expires_at']) ? ['expirydate' => (new \DateTimeImmutable($remote['expires_at']))->format('Y-m-d')] : [];
             if ($action === 'TransferSync') {
                 return ['completed' => $remote['status'] === 'active', 'failed' => in_array($remote['status'], ['failed', 'cancelled'], true)] + $expiry;
