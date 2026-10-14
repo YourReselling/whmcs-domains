@@ -1,0 +1,15 @@
+{
+  "name": "your-reselling/whmcs-domains",
+  "description": "Standalone Your-Reselling WHMCS module: Domains",
+  "type": "library",
+  "license": "BSD-2-Clause",
+  "require": {
+    "php": ">=8.1",
+    "ext-curl": "*",
+    "ext-json": "*",
+    "ext-openssl": "*"
+  },
+  "scripts": {
+    "test": "@php tests/run.php"
+  }
+}

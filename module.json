@@ -1,0 +1,10 @@
+{
+  "repository": "whmcs-domains",
+  "version": "3.0.0",
+  "product": "domains",
+  "module": "yourresellingdomains",
+  "type": "registrars",
+  "modulePath": "modules/registrars/yourresellingdomains",
+  "namespace": "YourReselling\\Whmcs\\Domains",
+  "contractDigest": "a6cdf1be65f4bcb63fd16c07820052f53ccff30819262ec5393061ac44e03956"
+}

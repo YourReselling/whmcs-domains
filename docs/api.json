@@ -1,0 +1,3045 @@
+{
+  "contractDigest": "a6cdf1be65f4bcb63fd16c07820052f53ccff30819262ec5393061ac44e03956",
+  "operations": [
+    {
+      "id": "GET /products/domains",
+      "group": "domains",
+      "name": "list",
+      "method": "GET",
+      "path": "/products/domains",
+      "summary": "List all domains",
+      "description": "Returns a paginated list of all domains for the authenticated reseller.",
+      "germanSummary": "Alle Domains auflisten",
+      "permissions": [
+        "domains:read"
+      ],
+      "authenticated": true,
+      "pathParameters": [],
+      "query": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "description": "Filter by status",
+            "type": "string",
+            "enum": [
+              "pending",
+              "processing",
+              "active",
+              "expired",
+              "cancelled",
+              "failed"
+            ]
+          },
+          "tld": {
+            "description": "Filter by TLD (e.g., de, com)",
+            "type": "string"
+          },
+          "search": {
+            "description": "Search by domain name",
+            "type": "string"
+          },
+          "page": {
+            "description": "Page number",
+            "type": "integer",
+            "default": 1
+          },
+          "per_page": {
+            "description": "Items per page (max 100)",
+            "type": "integer",
+            "default": 25
+          }
+        },
+        "additionalProperties": true,
+        "required": []
+      },
+      "body": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "List of domains",
+          "germanDescription": "Liste der Domains",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "domains": [
+                {
+                  "id": "550e8400-e29b-41d4-a716-446655440000",
+                  "domain": "example.de",
+                  "tld": "de",
+                  "status": "active",
+                  "expires_at": "2025-01-15",
+                  "auto_renew": true
+                }
+              ],
+              "meta": {
+                "current_page": 1,
+                "per_page": 25,
+                "total": 1
+              }
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainController.php:104",
+      "routeName": "api.domains.index"
+    },
+    {
+      "id": "GET /products/domains/catch",
+      "group": "domains",
+      "name": "catchIndex",
+      "method": "GET",
+      "path": "/products/domains/catch",
+      "summary": "List domain catch requests",
+      "description": "Get a list of all domain catch requests for the reseller.",
+      "germanSummary": "Domain-Catch-Auftraege auflisten",
+      "permissions": [
+        "domains:read"
+      ],
+      "authenticated": true,
+      "pathParameters": [],
+      "query": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "description": "Filter by status",
+            "type": "string",
+            "enum": [
+              "pending",
+              "monitoring",
+              "attempting",
+              "success",
+              "failed",
+              "cancelled"
+            ]
+          },
+          "page": {
+            "description": "Page number",
+            "type": "integer",
+            "default": 1
+          },
+          "per_page": {}
+        },
+        "additionalProperties": true,
+        "required": []
+      },
+      "body": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "List of catch requests",
+          "germanDescription": "Liste der Catch-Auftraege",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "catch_requests": [
+                {
+                  "id": "550e8400-e29b-41d4-a716-446655440000",
+                  "domain": "example.de",
+                  "status": "monitoring",
+                  "status_message": "Domain wird ueberwacht",
+                  "catch_fee": "5.00",
+                  "created_at": "2024-01-15T10:00:00+00:00"
+                }
+              ],
+              "meta": {
+                "total": 1
+              }
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainCatchController.php:73",
+      "routeName": "api.domains.catch.index"
+    },
+    {
+      "id": "POST /products/domains/catch/create",
+      "group": "domains",
+      "name": "catchStore",
+      "method": "POST",
+      "path": "/products/domains/catch/create",
+      "summary": "Create domain catch request",
+      "description": "Create a new domain catch request to monitor and automatically register an expiring/deleted domain. A catch fee of 5 EUR will be charged immediately.",
+      "germanSummary": "Domain-Catch-Auftrag erstellen",
+      "permissions": [
+        "domains:create"
+      ],
+      "authenticated": true,
+      "pathParameters": [],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {
+          "domain": {
+            "type": "string",
+            "maxLength": 253,
+            "x-validation": [
+              "required",
+              "string",
+              "max:253",
+              "regex:/^[a-zA-Z0-9][a-zA-Z0-9\\-_.]+\\.[a-zA-Z]{2,}$/"
+            ],
+            "x-validation-expressions": []
+          },
+          "handle_id": {
+            "type": "string",
+            "format": "uuid",
+            "x-validation": [
+              "required",
+              "string",
+              "uuid"
+            ],
+            "x-validation-expressions": []
+          }
+        },
+        "additionalProperties": true,
+        "required": [
+          "domain",
+          "handle_id"
+        ]
+      },
+      "bodyRequired": true,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 201,
+          "description": "Catch request created",
+          "germanDescription": "Catch-Auftrag erstellt",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "id": "550e8400-e29b-41d4-a716-446655440000",
+              "domain": "example.de",
+              "status": "pending",
+              "catch_fee": "5.00",
+              "message": "Catch request created. Domain will be monitored for availability."
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainCatchController.php:188",
+      "routeName": "api.domains.catch.store"
+    },
+    {
+      "id": "GET /products/domains/catch/{catch}",
+      "group": "domains",
+      "name": "catchShow",
+      "method": "GET",
+      "path": "/products/domains/catch/{catch}",
+      "summary": "Get catch request details",
+      "description": "Get detailed information about a specific domain catch request.",
+      "germanSummary": "Catch-Auftrag-Details abrufen",
+      "permissions": [
+        "domains:read"
+      ],
+      "authenticated": true,
+      "pathParameters": [
+        {
+          "name": "catch",
+          "type": "string",
+          "description": "Catch request ID (UUID)"
+        }
+      ],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "Catch request details",
+          "germanDescription": "Catch-Auftrag-Details",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "id": "550e8400-e29b-41d4-a716-446655440000",
+              "domain": "example.de",
+              "name": "example",
+              "tld": "de",
+              "status": "monitoring",
+              "status_message": "Domain wird ueberwacht",
+              "catch_fee": "5.00",
+              "fee_charged": true,
+              "check_count": 42,
+              "last_checked_at": "2024-01-15T12:00:00+00:00",
+              "registration_attempts": 0,
+              "expires_at": "2024-02-14T10:00:00+00:00",
+              "handle": {
+                "id": "...",
+                "handle": "JD-A1B2C3"
+              }
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainCatchController.php:141",
+      "routeName": "api.domains.catch.show"
+    },
+    {
+      "id": "POST /products/domains/catch/{catch}/cancel",
+      "group": "domains",
+      "name": "catchCancel",
+      "method": "POST",
+      "path": "/products/domains/catch/{catch}/cancel",
+      "summary": "Cancel catch request",
+      "description": "Cancel an active domain catch request. Note: The catch fee is non-refundable.",
+      "germanSummary": "Catch-Auftrag abbrechen",
+      "permissions": [
+        "domains:update"
+      ],
+      "authenticated": true,
+      "pathParameters": [
+        {
+          "name": "catch",
+          "type": "string",
+          "description": "Catch request ID (UUID)"
+        }
+      ],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "Catch request cancelled",
+          "germanDescription": "Catch-Auftrag abgebrochen",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "id": "550e8400-e29b-41d4-a716-446655440000",
+              "status": "cancelled",
+              "message": "Catch request cancelled"
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainCatchController.php:270",
+      "routeName": "api.domains.catch.cancel"
+    },
+    {
+      "id": "GET /products/domains/check",
+      "group": "domains",
+      "name": "check",
+      "method": "GET",
+      "path": "/products/domains/check",
+      "summary": "Check domain availability",
+      "description": "Check if a single domain is available for registration.",
+      "germanSummary": "Domain-Verfuegbarkeit pruefen",
+      "permissions": [
+        "domains:read"
+      ],
+      "authenticated": true,
+      "pathParameters": [],
+      "query": {
+        "type": "object",
+        "properties": {
+          "domain": {
+            "description": "The domain to check (e.g., example.de)",
+            "type": "string",
+            "maxLength": 253,
+            "x-validation": [
+              "required",
+              "string",
+              "max:253"
+            ],
+            "x-validation-expressions": []
+          }
+        },
+        "additionalProperties": true,
+        "required": [
+          "domain"
+        ]
+      },
+      "body": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "Domain availability result",
+          "germanDescription": "Ergebnis der Domain-Verfuegbarkeitspruefung",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "domain": "example.de",
+              "name": "example",
+              "tld": "de",
+              "available": true,
+              "premium": false,
+              "premium_price": null,
+              "transferable": false,
+              "status_message": "Domain ist verfuegbar",
+              "pricing": {
+                "tld": "de",
+                "register": 9.99,
+                "renew": 9.99,
+                "transfer": 9.99,
+                "restore": 99.99
+              },
+              "check_method": "provider",
+              "checked_at": "2026-02-03T23:46:35+00:00"
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainAvailabilityController.php:68",
+      "routeName": "api.domains.check"
+    },
+    {
+      "id": "POST /products/domains/check-bulk",
+      "group": "domains",
+      "name": "checkBulk",
+      "method": "POST",
+      "path": "/products/domains/check-bulk",
+      "summary": "Bulk check domain availability",
+      "description": "Check availability of multiple domains at once (max 50).",
+      "germanSummary": "Massen-Domain-Verfuegbarkeitspruefung",
+      "permissions": [
+        "domains:read"
+      ],
+      "authenticated": true,
+      "pathParameters": [],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {
+          "domains": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 50,
+            "x-validation": [
+              "required",
+              "array",
+              "min:1",
+              "max:50"
+            ],
+            "items": {
+              "type": "string",
+              "maxLength": 253,
+              "x-validation": [
+                "required",
+                "string",
+                "max:253"
+              ],
+              "x-validation-expressions": []
+            },
+            "x-validation-expressions": []
+          }
+        },
+        "additionalProperties": true,
+        "required": [
+          "domains"
+        ]
+      },
+      "bodyRequired": true,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "Bulk availability results",
+          "germanDescription": "Massen-Verfuegbarkeitsergebnisse",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "results": [
+                {
+                  "domain": "example.de",
+                  "name": "example",
+                  "tld": "de",
+                  "available": true,
+                  "premium": false,
+                  "premium_price": null,
+                  "transferable": false,
+                  "status_message": "Domain ist verfuegbar",
+                  "pricing": {
+                    "tld": "de",
+                    "register": 9.99,
+                    "renew": 9.99,
+                    "transfer": 9.99,
+                    "restore": 99.99
+                  },
+                  "check_method": "provider",
+                  "checked_at": "2026-02-03T23:46:35+00:00"
+                },
+                {
+                  "domain": "example.com",
+                  "name": "example",
+                  "tld": "com",
+                  "available": false,
+                  "transferable": true,
+                  "status_message": "Domain ist bereits registriert",
+                  "pricing": {
+                    "tld": "com",
+                    "register": 12.99,
+                    "renew": 12.99,
+                    "transfer": 12.99,
+                    "restore": 120
+                  },
+                  "check_method": "provider",
+                  "checked_at": "2026-02-03T23:46:35+00:00"
+                }
+              ],
+              "total": 2,
+              "available_count": 1
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainAvailabilityController.php:144",
+      "routeName": "api.domains.check-bulk"
+    },
+    {
+      "id": "POST /products/domains/create",
+      "group": "domains",
+      "name": "register",
+      "method": "POST",
+      "path": "/products/domains/create",
+      "summary": "Register a new domain",
+      "description": "Register a new domain with the specified handle and nameservers.",
+      "germanSummary": "Neue Domain registrieren",
+      "permissions": [
+        "domains:create"
+      ],
+      "authenticated": true,
+      "pathParameters": [],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {
+          "domain": {
+            "type": "string",
+            "maxLength": 253,
+            "x-validation": [
+              "required",
+              "string",
+              "max:253",
+              "regex:/^[a-zA-Z0-9][a-zA-Z0-9\\-_.]+\\.[a-zA-Z]{2,}$/"
+            ],
+            "x-validation-expressions": []
+          },
+          "handle_id": {
+            "type": "string",
+            "format": "uuid",
+            "x-validation": [
+              "required",
+              "string",
+              "uuid"
+            ],
+            "x-validation-expressions": []
+          },
+          "nameservers": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 6,
+            "nullable": true,
+            "x-validation": [
+              "nullable",
+              "array",
+              "min:2",
+              "max:6"
+            ],
+            "items": {
+              "type": "string",
+              "x-validation": [
+                "string",
+                "regex:/^[a-zA-Z0-9][a-zA-Z0-9\\-_.]+\\.[a-zA-Z]{2,}$/"
+              ],
+              "x-validation-expressions": []
+            },
+            "x-validation-expressions": []
+          },
+          "years": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "x-validation": [
+              "integer",
+              "min:1",
+              "max:10"
+            ],
+            "x-validation-expressions": []
+          }
+        },
+        "additionalProperties": true,
+        "required": [
+          "domain",
+          "handle_id"
+        ]
+      },
+      "bodyRequired": true,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 201,
+          "description": "Domain registered successfully",
+          "germanDescription": "Domain erfolgreich registriert",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "id": "550e8400-e29b-41d4-a716-446655440000",
+              "domain": "example.de",
+              "status": "pending",
+              "message": "Domain registration initiated"
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainController.php:228",
+      "routeName": "api.domains.register"
+    },
+    {
+      "id": "GET /products/domains/dns/record-types",
+      "group": "domains",
+      "name": "dnsRecordTypes",
+      "method": "GET",
+      "path": "/products/domains/dns/record-types",
+      "summary": "Get supported DNS record types",
+      "description": "Returns all DNS record types supported by the DNS provider (ClouDNS), each with a description. NS and SOA are excluded since they are managed automatically.",
+      "germanSummary": "Unterstuetzte DNS-Record-Typen abrufen",
+      "permissions": [
+        "domains:read"
+      ],
+      "authenticated": true,
+      "pathParameters": [],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "Supported DNS record types",
+          "germanDescription": "Unterstuetzte DNS-Record-Typen",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "record_types": [
+                {
+                  "type": "A",
+                  "description": "Maps a hostname to an IPv4 address.",
+                  "germanDescription": "Verknuepft einen Hostnamen mit einer IPv4-Adresse."
+                },
+                {
+                  "type": "AAAA",
+                  "description": "Maps a hostname to an IPv6 address.",
+                  "germanDescription": "Verknuepft einen Hostnamen mit einer IPv6-Adresse."
+                }
+              ]
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainDnsController.php:48",
+      "routeName": "api.domains.dns.record-types"
+    },
+    {
+      "id": "GET /products/domains/handles",
+      "group": "domains",
+      "name": "handlesIndex",
+      "method": "GET",
+      "path": "/products/domains/handles",
+      "summary": "List domain handles",
+      "description": "Get a list of all domain handles (contacts) for the reseller.",
+      "germanSummary": "Domain-Handles auflisten",
+      "permissions": [
+        "domains:read"
+      ],
+      "authenticated": true,
+      "pathParameters": [],
+      "query": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "description": "Page number",
+            "type": "integer",
+            "default": 1
+          },
+          "per_page": {
+            "description": "Items per page (max 100)",
+            "type": "integer",
+            "default": 25
+          }
+        },
+        "additionalProperties": true,
+        "required": []
+      },
+      "body": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "List of handles",
+          "germanDescription": "Liste der Handles",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "handles": [
+                {
+                  "id": "550e8400-e29b-41d4-a716-446655440000",
+                  "handle": "JD-A1B2C3",
+                  "type": "individual",
+                  "full_name": "John Doe",
+                  "organization": null,
+                  "email": "john@example.com",
+                  "is_default": true
+                }
+              ],
+              "meta": {
+                "total": 1,
+                "current_page": 1
+              }
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainHandleController.php:75",
+      "routeName": "api.domains.handles.index"
+    },
+    {
+      "id": "POST /products/domains/handles/create",
+      "group": "domains",
+      "name": "handlesStore",
+      "method": "POST",
+      "path": "/products/domains/handles/create",
+      "summary": "Create domain handle",
+      "description": "Create a new domain handle (contact) for domain registration. The `type` field controls whether this is a personal (`individual`) or company (`organization`) contact. When `type` is `organization`, the `organization` field is required. The `house_number`, `fax`, `state`, and `is_default` fields are optional for both types.",
+      "germanSummary": "Domain-Handle erstellen",
+      "permissions": [
+        "domains:create"
+      ],
+      "authenticated": true,
+      "pathParameters": [],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "individual",
+              "organization"
+            ],
+            "description": "Contact type: individual (private person) or organization (company)",
+            "x-validation": [
+              "required",
+              "string",
+              "in:individual,organization"
+            ],
+            "x-validation-expressions": [
+              "Rule::in(['individual', 'organization'])"
+            ]
+          },
+          "first_name": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "First name of the contact person",
+            "x-validation": [
+              "required",
+              "string",
+              "max:100"
+            ],
+            "x-validation-expressions": []
+          },
+          "last_name": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Last name of the contact person",
+            "x-validation": [
+              "required",
+              "string",
+              "max:100"
+            ],
+            "x-validation-expressions": []
+          },
+          "organization": {
+            "type": "string",
+            "maxLength": 255,
+            "nullable": true,
+            "description": "Company name — required when type is organization, optional for individuals",
+            "x-validation": [
+              "required_if:type,organization",
+              "nullable",
+              "string",
+              "max:255"
+            ],
+            "x-validation-expressions": []
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Contact email address",
+            "maxLength": 255,
+            "x-validation": [
+              "required",
+              "email",
+              "max:255"
+            ],
+            "x-validation-expressions": []
+          },
+          "phone": {
+            "type": "string",
+            "description": "Phone number in international format, e.g. +491234567890",
+            "x-validation": [
+              "required",
+              "string",
+              "regex:/^\\+[0-9]{6,15}$/"
+            ],
+            "x-validation-expressions": []
+          },
+          "fax": {
+            "type": "string",
+            "nullable": true,
+            "description": "Fax number in international format (optional)",
+            "x-validation": [
+              "nullable",
+              "string",
+              "regex:/^\\+[0-9]{6,15}$/"
+            ],
+            "x-validation-expressions": []
+          },
+          "street": {
+            "type": "string",
+            "maxLength": 255,
+            "description": "Street name",
+            "x-validation": [
+              "required",
+              "string",
+              "max:255"
+            ],
+            "x-validation-expressions": []
+          },
+          "house_number": {
+            "type": "string",
+            "maxLength": 20,
+            "nullable": true,
+            "description": "House number (optional)",
+            "x-validation": [
+              "nullable",
+              "string",
+              "max:20"
+            ],
+            "x-validation-expressions": []
+          },
+          "postal_code": {
+            "type": "string",
+            "maxLength": 20,
+            "description": "Postal/ZIP code",
+            "x-validation": [
+              "required",
+              "string",
+              "max:20"
+            ],
+            "x-validation-expressions": []
+          },
+          "city": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "City",
+            "x-validation": [
+              "required",
+              "string",
+              "max:100"
+            ],
+            "x-validation-expressions": []
+          },
+          "state": {
+            "type": "string",
+            "maxLength": 100,
+            "nullable": true,
+            "description": "State/province (optional, required for some countries)",
+            "x-validation": [
+              "nullable",
+              "string",
+              "max:100"
+            ],
+            "x-validation-expressions": []
+          },
+          "country_code": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "ISO 3166-1 alpha-2 country code, e.g. DE, US, GB",
+            "x-validation": [
+              "required",
+              "string",
+              "size:2"
+            ],
+            "x-validation-expressions": []
+          },
+          "is_default": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "Set as default handle for new domain registrations (optional)",
+            "x-validation": [
+              "nullable",
+              "boolean"
+            ],
+            "x-validation-expressions": []
+          }
+        },
+        "additionalProperties": true,
+        "required": [
+          "city",
+          "country_code",
+          "email",
+          "first_name",
+          "last_name",
+          "phone",
+          "postal_code",
+          "street",
+          "type"
+        ]
+      },
+      "bodyRequired": true,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 201,
+          "description": "Handle created",
+          "germanDescription": "Handle erstellt",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "id": "550e8400-e29b-41d4-a716-446655440000",
+              "handle": "JD-A1B2C3",
+              "message": "Handle created successfully"
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainHandleController.php:214",
+      "routeName": "api.domains.handles.store"
+    },
+    {
+      "id": "GET /products/domains/handles/{handle}",
+      "group": "domains",
+      "name": "handlesShow",
+      "method": "GET",
+      "path": "/products/domains/handles/{handle}",
+      "summary": "Get handle details",
+      "description": "Get detailed information about a specific domain handle.",
+      "germanSummary": "Handle-Details abrufen",
+      "permissions": [
+        "domains:read"
+      ],
+      "authenticated": true,
+      "pathParameters": [
+        {
+          "name": "handle",
+          "type": "string",
+          "description": "Handle ID (UUID)"
+        }
+      ],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "Handle details",
+          "germanDescription": "Handle-Details",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "id": "550e8400-e29b-41d4-a716-446655440000",
+              "handle": "JD-A1B2C3",
+              "type": "individual",
+              "first_name": "John",
+              "last_name": "Doe",
+              "organization": null,
+              "email": "john@example.com",
+              "phone": "+491234567890",
+              "street": "Musterstrasse",
+              "house_number": "123",
+              "postal_code": "12345",
+              "city": "Berlin",
+              "country_code": "DE",
+              "is_default": true,
+              "domains_count": 5
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainHandleController.php:143",
+      "routeName": "api.domains.handles.show"
+    },
+    {
+      "id": "DELETE /products/domains/handles/{handle}/delete",
+      "group": "domains",
+      "name": "handlesDestroy",
+      "method": "DELETE",
+      "path": "/products/domains/handles/{handle}/delete",
+      "summary": "Delete domain handle",
+      "description": "Delete a domain handle. Cannot delete if handle is in use by domains.",
+      "germanSummary": "Domain-Handle loeschen",
+      "permissions": [
+        "domains:delete"
+      ],
+      "authenticated": true,
+      "pathParameters": [
+        {
+          "name": "handle",
+          "type": "string",
+          "description": "Handle ID (UUID)"
+        }
+      ],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "Handle deleted",
+          "germanDescription": "Handle geloescht",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "message": "Handle deleted successfully"
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainHandleController.php:330",
+      "routeName": "api.domains.handles.destroy"
+    },
+    {
+      "id": "GET /products/domains/handles/{handle}/domains",
+      "group": "domains",
+      "name": "handlesDomains",
+      "method": "GET",
+      "path": "/products/domains/handles/{handle}/domains",
+      "summary": "Get domains using handle",
+      "description": "Get a list of all domains that use this handle as registrant.",
+      "germanSummary": "Domains des Handles abrufen",
+      "permissions": [
+        "domains:read"
+      ],
+      "authenticated": true,
+      "pathParameters": [
+        {
+          "name": "handle",
+          "type": "string",
+          "description": "Handle ID (UUID)"
+        }
+      ],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "Domains using this handle",
+          "germanDescription": "Domains, die dieses Handle verwenden",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "domains": [
+                {
+                  "id": "...",
+                  "domain": "example.de",
+                  "status": "active"
+                }
+              ],
+              "total": 1
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainHandleController.php:400",
+      "routeName": "api.domains.handles.domains"
+    },
+    {
+      "id": "POST /products/domains/handles/{handle}/update",
+      "group": "domains",
+      "name": "handlesUpdate",
+      "method": "POST",
+      "path": "/products/domains/handles/{handle}/update",
+      "summary": "Update domain handle",
+      "description": "Update an existing domain handle. Changes are synced to all providers.",
+      "germanSummary": "Domain-Handle aktualisieren",
+      "permissions": [
+        "domains:update"
+      ],
+      "authenticated": true,
+      "pathParameters": [
+        {
+          "name": "handle",
+          "type": "string",
+          "description": "Handle ID (UUID)"
+        }
+      ],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {
+          "city": {
+            "type": "string",
+            "maxLength": 100,
+            "x-validation": [
+              "sometimes",
+              "string",
+              "max:100"
+            ],
+            "x-validation-expressions": []
+          },
+          "country_code": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "x-validation": [
+              "sometimes",
+              "string",
+              "size:2"
+            ],
+            "x-validation-expressions": []
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 255,
+            "x-validation": [
+              "sometimes",
+              "email",
+              "max:255"
+            ],
+            "x-validation-expressions": []
+          },
+          "fax": {
+            "type": "string",
+            "nullable": true,
+            "x-validation": [
+              "nullable",
+              "string",
+              "regex:/^\\+[0-9]{6,15}$/"
+            ],
+            "x-validation-expressions": []
+          },
+          "first_name": {
+            "type": "string",
+            "maxLength": 100,
+            "x-validation": [
+              "sometimes",
+              "string",
+              "max:100"
+            ],
+            "x-validation-expressions": []
+          },
+          "house_number": {
+            "type": "string",
+            "maxLength": 20,
+            "nullable": true,
+            "x-validation": [
+              "nullable",
+              "string",
+              "max:20"
+            ],
+            "x-validation-expressions": []
+          },
+          "is_default": {
+            "type": "boolean",
+            "nullable": true,
+            "x-validation": [
+              "nullable",
+              "boolean"
+            ],
+            "x-validation-expressions": []
+          },
+          "last_name": {
+            "type": "string",
+            "maxLength": 100,
+            "x-validation": [
+              "sometimes",
+              "string",
+              "max:100"
+            ],
+            "x-validation-expressions": []
+          },
+          "organization": {
+            "type": "string",
+            "maxLength": 255,
+            "nullable": true,
+            "x-validation": [
+              "required_if:type,organization",
+              "nullable",
+              "string",
+              "max:255"
+            ],
+            "x-validation-expressions": []
+          },
+          "phone": {
+            "type": "string",
+            "x-validation": [
+              "sometimes",
+              "string",
+              "regex:/^\\+[0-9]{6,15}$/"
+            ],
+            "x-validation-expressions": []
+          },
+          "postal_code": {
+            "type": "string",
+            "maxLength": 20,
+            "x-validation": [
+              "sometimes",
+              "string",
+              "max:20"
+            ],
+            "x-validation-expressions": []
+          },
+          "state": {
+            "type": "string",
+            "maxLength": 100,
+            "nullable": true,
+            "x-validation": [
+              "nullable",
+              "string",
+              "max:100"
+            ],
+            "x-validation-expressions": []
+          },
+          "street": {
+            "type": "string",
+            "maxLength": 255,
+            "x-validation": [
+              "sometimes",
+              "string",
+              "max:255"
+            ],
+            "x-validation-expressions": []
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "individual",
+              "organization"
+            ],
+            "x-validation": [
+              "sometimes",
+              "string",
+              "in:individual,organization"
+            ],
+            "x-validation-expressions": [
+              "Rule::in(['individual', 'organization'])"
+            ]
+          }
+        },
+        "additionalProperties": true,
+        "required": []
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "Handle updated",
+          "germanDescription": "Handle aktualisiert",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "id": "550e8400-e29b-41d4-a716-446655440000",
+              "message": "Handle updated successfully"
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainHandleController.php:274",
+      "routeName": "api.domains.handles.update"
+    },
+    {
+      "id": "GET /products/domains/pricing",
+      "group": "domains",
+      "name": "pricing",
+      "method": "GET",
+      "path": "/products/domains/pricing",
+      "summary": "Get domain pricing",
+      "description": "Get pricing for all available TLDs. If reseller has custom pricing, those prices are returned.",
+      "germanSummary": "Domain-Preise abrufen",
+      "permissions": [
+        "domains:read"
+      ],
+      "authenticated": true,
+      "pathParameters": [],
+      "query": {
+        "type": "object",
+        "properties": {
+          "tld": {
+            "description": "Filter by specific TLD (e.g., de, com)",
+            "type": "string"
+          },
+          "featured": {
+            "description": "Only show featured TLDs",
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": true,
+        "required": []
+      },
+      "body": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "TLD pricing list",
+          "germanDescription": "TLD-Preisliste",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "prices": [
+                {
+                  "tld": "de",
+                  "create": 9.99,
+                  "renew": 9.99,
+                  "transfer": 9.99,
+                  "restore": 99.99,
+                  "promo": 4.99,
+                  "promo_ends_at": "2026-09-01T00:00:00+00:00",
+                  "renew_promo": 6.99,
+                  "renew_promo_ends_at": "2026-09-01T00:00:00+00:00",
+                  "transfer_promo": 5.99,
+                  "transfer_promo_ends_at": "2026-09-01T00:00:00+00:00",
+                  "is_featured": true,
+                  "min_years": 1,
+                  "max_years": 10
+                }
+              ],
+              "total": 1
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainPricingController.php:76",
+      "routeName": "api.domains.pricing"
+    },
+    {
+      "id": "GET /products/domains/pricing/promos",
+      "group": "domains",
+      "name": "pricingPromos",
+      "method": "GET",
+      "path": "/products/domains/pricing/promos",
+      "summary": "Get active domain promo prices",
+      "description": "Get only TLDs that currently have an active promo/action price for create, renew and/or transfer. If reseller has custom pricing, those prices are used to resolve the regular price.",
+      "germanSummary": "Aktive Domain-Aktionspreise abrufen",
+      "permissions": [
+        "domains:read"
+      ],
+      "authenticated": true,
+      "pathParameters": [],
+      "query": {
+        "type": "object",
+        "properties": {
+          "tld": {
+            "description": "Filter by specific TLD (e.g., de, com)",
+            "type": "string"
+          }
+        },
+        "additionalProperties": true,
+        "required": []
+      },
+      "body": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "Active promo prices, one entry per TLD and action",
+          "germanDescription": "Aktive Aktionspreise, ein Eintrag pro TLD und Aktion",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "promos": [
+                {
+                  "tld": "de",
+                  "action": "create",
+                  "price": 4.99,
+                  "regular_price": 9.99,
+                  "discount_percent": 50,
+                  "ends_at": "2026-09-01T00:00:00+00:00"
+                }
+              ],
+              "total": 1
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainPricingController.php:186",
+      "routeName": "api.domains.pricing.promos"
+    },
+    {
+      "id": "GET /products/domains/statistics",
+      "group": "domains",
+      "name": "statistics",
+      "method": "GET",
+      "path": "/products/domains/statistics",
+      "summary": "Get domain statistics",
+      "description": "Get domain statistics including count by TLD, status, and expiration info.",
+      "germanSummary": "Domain-Statistiken abrufen",
+      "permissions": [
+        "domains:read"
+      ],
+      "authenticated": true,
+      "pathParameters": [],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "Domain statistics",
+          "germanDescription": "Domain-Statistiken",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "total": 150,
+              "by_status": {
+                "active": 140,
+                "pending": 5,
+                "expired": 3,
+                "failed": 2
+              },
+              "by_tld": {
+                "de": 80,
+                "com": 40,
+                "net": 20,
+                "eu": 10
+              },
+              "expiring_soon": {
+                "7_days": 2,
+                "30_days": 8,
+                "90_days": 15
+              },
+              "auto_renew_enabled": 130,
+              "auto_renew_disabled": 20
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainStatisticsController.php:56",
+      "routeName": "api.domains.statistics"
+    },
+    {
+      "id": "GET /products/domains/suggestions",
+      "group": "domains",
+      "name": "suggestions",
+      "method": "GET",
+      "path": "/products/domains/suggestions",
+      "summary": "Get domain suggestions",
+      "description": "Get alternative domain suggestions for a given name across popular TLDs.",
+      "germanSummary": "Domain-Vorschlaege abrufen",
+      "permissions": [
+        "domains:read"
+      ],
+      "authenticated": true,
+      "pathParameters": [],
+      "query": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "The domain name (without TLD) to get suggestions for",
+            "type": "string",
+            "maxLength": 63,
+            "x-validation": [
+              "required",
+              "string",
+              "max:63"
+            ],
+            "x-validation-expressions": []
+          },
+          "limit": {
+            "description": "Maximum number of suggestions (default: 20, max: 50)",
+            "type": "integer",
+            "default": 20,
+            "minimum": 1,
+            "maximum": 50,
+            "nullable": true,
+            "x-validation": [
+              "nullable",
+              "integer",
+              "min:1",
+              "max:50"
+            ],
+            "x-validation-expressions": []
+          }
+        },
+        "additionalProperties": true,
+        "required": [
+          "name"
+        ]
+      },
+      "body": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "Domain suggestions",
+          "germanDescription": "Domain-Vorschlaege",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "suggestions": [
+                {
+                  "domain": "mycompany.de",
+                  "name": "mycompany",
+                  "tld": "de",
+                  "available": true,
+                  "transferable": false,
+                  "status_message": "Domain ist verfuegbar",
+                  "pricing": {
+                    "tld": "de",
+                    "register": 9.99,
+                    "renew": 9.99,
+                    "transfer": 9.99,
+                    "restore": 99.99
+                  },
+                  "check_method": "provider",
+                  "checked_at": "2026-02-03T23:46:35+00:00"
+                },
+                {
+                  "domain": "mycompany.com",
+                  "name": "mycompany",
+                  "tld": "com",
+                  "available": false,
+                  "transferable": true,
+                  "status_message": "Domain ist bereits registriert",
+                  "pricing": {
+                    "tld": "com",
+                    "register": 12.99,
+                    "renew": 12.99,
+                    "transfer": 12.99,
+                    "restore": 120
+                  },
+                  "check_method": "provider",
+                  "checked_at": "2026-02-03T23:46:35+00:00"
+                }
+              ]
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainAvailabilityController.php:232",
+      "routeName": "api.domains.suggestions"
+    },
+    {
+      "id": "POST /products/domains/transfer",
+      "group": "domains",
+      "name": "transfer",
+      "method": "POST",
+      "path": "/products/domains/transfer",
+      "summary": "Transfer a domain",
+      "description": "Initiate a domain transfer from another registrar. \"nameserver_mode\" chooses what happens with the nameservers: \"platform\" (default) points the domain at our nameservers once the transfer completes, \"external\" keeps the nameservers of the previous provider (no zone is created here; switch later with POST {domain}/nameservers/platform). \"dns_import\" (only with \"platform\") takes the current DNS records of the old provider along: \"scan\" scans them for review, \"apply\" scans and writes them into our zone automatically. Default is \"none\".",
+      "germanSummary": "Domain transferieren",
+      "permissions": [
+        "domains:transfer"
+      ],
+      "authenticated": true,
+      "pathParameters": [],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {
+          "auth_code": {
+            "type": "string",
+            "minLength": 6,
+            "maxLength": 64,
+            "x-validation": [
+              "required",
+              "string",
+              "min:6",
+              "max:64"
+            ],
+            "x-validation-expressions": []
+          },
+          "dns_import": {
+            "type": "string",
+            "enum": [
+              "none",
+              "scan",
+              "apply"
+            ],
+            "nullable": true,
+            "x-validation": [
+              "nullable",
+              "in:none,scan,apply"
+            ],
+            "x-validation-expressions": [
+              "Rule::in(['none', 'scan', 'apply'])",
+              "Rule::prohibitedIf(fn() => $this->input('nameserver_mode') === 'external' && $this->input('dns_import') !== 'none')"
+            ]
+          },
+          "domain": {
+            "type": "string",
+            "maxLength": 253,
+            "x-validation": [
+              "required",
+              "string",
+              "max:253",
+              "regex:/^[a-zA-Z0-9][a-zA-Z0-9\\-_.]+\\.[a-zA-Z]{2,}$/"
+            ],
+            "x-validation-expressions": []
+          },
+          "handle_id": {
+            "type": "string",
+            "format": "uuid",
+            "x-validation": [
+              "required",
+              "string",
+              "uuid"
+            ],
+            "x-validation-expressions": []
+          },
+          "nameserver_mode": {
+            "type": "string",
+            "enum": [
+              "platform",
+              "external"
+            ],
+            "nullable": true,
+            "x-validation": [
+              "nullable",
+              "in:platform,external"
+            ],
+            "x-validation-expressions": [
+              "Rule::in(['platform', 'external'])"
+            ]
+          },
+          "years": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "x-validation": [
+              "integer",
+              "min:1",
+              "max:10"
+            ],
+            "x-validation-expressions": []
+          }
+        },
+        "additionalProperties": true,
+        "required": [
+          "auth_code",
+          "domain",
+          "handle_id"
+        ]
+      },
+      "bodyRequired": true,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 201,
+          "description": "Transfer initiated",
+          "germanDescription": "Transfer eingeleitet",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "id": "550e8400-e29b-41d4-a716-446655440000",
+              "domain": "example.de",
+              "status": "transferring_in",
+              "nameserver_mode": "platform",
+              "dns_import_status": "pending",
+              "message": "Domain transfer initiated"
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainController.php:302",
+      "routeName": "api.domains.transfer"
+    },
+    {
+      "id": "GET /products/domains/{domain}",
+      "group": "domains",
+      "name": "get",
+      "method": "GET",
+      "path": "/products/domains/{domain}",
+      "summary": "Get domain details",
+      "description": "Returns detailed information about a specific domain.",
+      "germanSummary": "Domain-Details abrufen",
+      "permissions": [
+        "domains:read"
+      ],
+      "authenticated": true,
+      "pathParameters": [
+        {
+          "name": "domain",
+          "type": "string",
+          "description": "Domain ID (UUID)"
+        }
+      ],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "Domain details",
+          "germanDescription": "Domain-Details",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "id": "550e8400-e29b-41d4-a716-446655440000",
+              "domain": "example.de",
+              "tld": "de",
+              "status": "active",
+              "registered_at": "2024-01-15",
+              "expires_at": "2025-01-15",
+              "auto_renew": true,
+              "dnssec_enabled": false,
+              "privacy_protection": true,
+              "nameservers": [
+                "ns1.example.com",
+                "ns2.example.com"
+              ],
+              "nameserver_mode": "platform",
+              "dns_import_status": null,
+              "handle": {
+                "id": "...",
+                "handle": "JD-A1B2C3"
+              }
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainController.php:180",
+      "routeName": "api.domains.show"
+    },
+    {
+      "id": "POST /products/domains/{domain}/auth-code",
+      "group": "domains",
+      "name": "authCode",
+      "method": "POST",
+      "path": "/products/domains/{domain}/auth-code",
+      "summary": "Generate auth code",
+      "description": "Generate or retrieve the auth code for outbound domain transfer.",
+      "germanSummary": "Auth-Code generieren",
+      "permissions": [
+        "domains:update"
+      ],
+      "authenticated": true,
+      "pathParameters": [
+        {
+          "name": "domain",
+          "type": "string",
+          "description": "Domain ID (UUID)"
+        }
+      ],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "Auth code generated",
+          "germanDescription": "Auth-Code generiert",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "auth_code": "ABC123XYZ789"
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainController.php:371",
+      "routeName": "api.domains.auth-code"
+    },
+    {
+      "id": "POST /products/domains/{domain}/disableAutoRenew",
+      "group": "domains",
+      "name": "disableAutoRenew",
+      "method": "POST",
+      "path": "/products/domains/{domain}/disableAutoRenew",
+      "summary": "Disable auto-renew",
+      "description": "Disable automatic renewal for the domain. Domain will be deleted at end of registration period.",
+      "germanSummary": "Auto-Renew deaktivieren",
+      "permissions": [
+        "domains:update"
+      ],
+      "authenticated": true,
+      "pathParameters": [
+        {
+          "name": "domain",
+          "type": "string",
+          "description": "Domain ID (UUID)"
+        }
+      ],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "Auto-renew disabled",
+          "germanDescription": "Auto-Renew deaktiviert",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "auto_renew": false,
+              "message": "Auto-renew disabled"
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainController.php:486",
+      "routeName": "api.domains.disable-auto-renew"
+    },
+    {
+      "id": "GET /products/domains/{domain}/dns",
+      "group": "domains",
+      "name": "dnsIndex",
+      "method": "GET",
+      "path": "/products/domains/{domain}/dns",
+      "summary": "Get DNS records",
+      "description": "Returns all DNS records for the domain.",
+      "germanSummary": "DNS-Records abrufen",
+      "permissions": [
+        "domains:read"
+      ],
+      "authenticated": true,
+      "pathParameters": [
+        {
+          "name": "domain",
+          "type": "string",
+          "description": "Domain ID (UUID)"
+        }
+      ],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "DNS records",
+          "germanDescription": "DNS-Records",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "records": [
+                {
+                  "type": "A",
+                  "name": "@",
+                  "content": "192.168.1.1",
+                  "ttl": 3600
+                },
+                {
+                  "type": "CNAME",
+                  "name": "www",
+                  "content": "example.de.",
+                  "ttl": 3600
+                },
+                {
+                  "type": "MX",
+                  "name": "@",
+                  "content": "mail.example.de.",
+                  "ttl": 3600,
+                  "priority": 10
+                }
+              ],
+              "domain": "example.de"
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainDnsController.php:110",
+      "routeName": "api.domains.dns.index"
+    },
+    {
+      "id": "DELETE /products/domains/{domain}/dns-import",
+      "group": "domains",
+      "name": "dnsImportDestroy",
+      "method": "DELETE",
+      "path": "/products/domains/{domain}/dns-import",
+      "summary": "Discard DNS import",
+      "description": "Discards the current scan result without changing the DNS zone, e.g. to start a fresh scan.",
+      "germanSummary": "DNS-Import verwerfen",
+      "permissions": [
+        "domains:update"
+      ],
+      "authenticated": true,
+      "pathParameters": [
+        {
+          "name": "domain",
+          "type": "string",
+          "description": "Domain ID (UUID)"
+        }
+      ],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "Import discarded",
+          "germanDescription": "Import verworfen",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "message": "DNS import discarded"
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainDnsImportController.php:221",
+      "routeName": "api.domains.dns-import.destroy"
+    },
+    {
+      "id": "GET /products/domains/{domain}/dns-import",
+      "group": "domains",
+      "name": "dnsImportShow",
+      "method": "GET",
+      "path": "/products/domains/{domain}/dns-import",
+      "summary": "Get DNS import status",
+      "description": "Returns the state of the DNS import (scan of the previous provider's zone) and, once the scan is completed, the found records.",
+      "germanSummary": "DNS-Import-Status abrufen",
+      "permissions": [
+        "domains:read"
+      ],
+      "authenticated": true,
+      "pathParameters": [
+        {
+          "name": "domain",
+          "type": "string",
+          "description": "Domain ID (UUID)"
+        }
+      ],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "DNS import state. \"status\" is null (no import), pending, scanning, completed, failed or applied.",
+          "germanDescription": "DNS-Import-Status. \"status\" ist null (kein Import), pending, scanning, completed, failed oder applied.",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "domain": "example.de",
+              "status": "completed",
+              "can_import": true,
+              "auto_apply": false,
+              "error": null,
+              "axfr_used": false,
+              "warnings": [],
+              "records": [
+                {
+                  "type": "A",
+                  "name": "@",
+                  "content": "192.0.2.10",
+                  "ttl": 3600
+                },
+                {
+                  "type": "MX",
+                  "name": "@",
+                  "content": "mail.example.de",
+                  "ttl": 3600,
+                  "priority": 10
+                }
+              ],
+              "requested_at": "2026-09-21T14:00:00+00:00",
+              "applied_at": null
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainDnsImportController.php:69",
+      "routeName": "api.domains.dns-import.show"
+    },
+    {
+      "id": "POST /products/domains/{domain}/dns-import",
+      "group": "domains",
+      "name": "dnsImportStore",
+      "method": "POST",
+      "path": "/products/domains/{domain}/dns-import",
+      "summary": "Start DNS import scan",
+      "description": "Scans the zone currently served by the previous provider (best effort, e.g. via AXFR or enumeration of common names). Only possible while the domain uses our nameservers (nameserver_mode \"platform\") and ideally before the transfer completes. With \"auto_apply\" the found records are written into our zone as soon as the scan is done; otherwise fetch them with GET and apply them with POST dns-import/apply.",
+      "germanSummary": "DNS-Import-Scan starten",
+      "permissions": [
+        "domains:update"
+      ],
+      "authenticated": true,
+      "pathParameters": [
+        {
+          "name": "domain",
+          "type": "string",
+          "description": "Domain ID (UUID)"
+        }
+      ],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {
+          "auto_apply": {
+            "type": "boolean",
+            "nullable": true,
+            "x-validation": [
+              "nullable",
+              "boolean"
+            ],
+            "x-validation-expressions": []
+          }
+        },
+        "additionalProperties": true,
+        "required": []
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 202,
+          "description": "Scan queued",
+          "germanDescription": "Scan eingeplant",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "status": "pending",
+              "message": "DNS import scan queued"
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainDnsImportController.php:123",
+      "routeName": "api.domains.dns-import.store"
+    },
+    {
+      "id": "POST /products/domains/{domain}/dns-import/apply",
+      "group": "domains",
+      "name": "dnsImportApply",
+      "method": "POST",
+      "path": "/products/domains/{domain}/dns-import/apply",
+      "summary": "Apply DNS import",
+      "description": "Writes records of a completed scan into our DNS zone. Send \"records\" to apply an edited selection; without it all importable records of the scan are applied.",
+      "germanSummary": "DNS-Import uebernehmen",
+      "permissions": [
+        "domains:update"
+      ],
+      "authenticated": true,
+      "pathParameters": [
+        {
+          "name": "domain",
+          "type": "string",
+          "description": "Domain ID (UUID)"
+        }
+      ],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 500,
+            "nullable": true,
+            "x-validation": [
+              "nullable",
+              "array",
+              "min:1",
+              "max:500"
+            ],
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "content": {
+                  "type": "string",
+                  "maxLength": 2048,
+                  "x-validation": [
+                    "required",
+                    "string",
+                    "max:2048"
+                  ],
+                  "x-validation-expressions": []
+                },
+                "name": {
+                  "type": "string",
+                  "maxLength": 255,
+                  "x-validation": [
+                    "required",
+                    "string",
+                    "max:255"
+                  ],
+                  "x-validation-expressions": []
+                },
+                "port": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 65535,
+                  "nullable": true,
+                  "x-validation": [
+                    "nullable",
+                    "integer",
+                    "min:0",
+                    "max:65535"
+                  ],
+                  "x-validation-expressions": []
+                },
+                "priority": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 65535,
+                  "nullable": true,
+                  "x-validation": [
+                    "nullable",
+                    "integer",
+                    "min:0",
+                    "max:65535"
+                  ],
+                  "x-validation-expressions": []
+                },
+                "ttl": {
+                  "type": "integer",
+                  "minimum": 60,
+                  "maximum": 86400,
+                  "nullable": true,
+                  "x-validation": [
+                    "nullable",
+                    "integer",
+                    "min:60",
+                    "max:86400"
+                  ],
+                  "x-validation-expressions": []
+                },
+                "type": {
+                  "type": "string",
+                  "x-validation": [
+                    "required",
+                    "string"
+                  ],
+                  "x-validation-expressions": [
+                    "Rule::in(DnsImportService::IMPORTABLE_TYPES)"
+                  ]
+                },
+                "weight": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 65535,
+                  "nullable": true,
+                  "x-validation": [
+                    "nullable",
+                    "integer",
+                    "min:0",
+                    "max:65535"
+                  ],
+                  "x-validation-expressions": []
+                }
+              },
+              "required": [
+                "content",
+                "name",
+                "type"
+              ]
+            },
+            "x-validation-expressions": []
+          }
+        },
+        "additionalProperties": true,
+        "required": []
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "Records imported",
+          "germanDescription": "Records importiert",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "records_count": 2,
+              "message": "DNS records imported"
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainDnsImportController.php:176",
+      "routeName": "api.domains.dns-import.apply"
+    },
+    {
+      "id": "POST /products/domains/{domain}/dns/update",
+      "group": "domains",
+      "name": "dnsUpdate",
+      "method": "POST",
+      "path": "/products/domains/{domain}/dns/update",
+      "summary": "Update DNS records",
+      "description": "Create, update, or delete DNS records. Send the complete list of desired records.",
+      "germanSummary": "DNS-Records aktualisieren",
+      "permissions": [
+        "domains:update"
+      ],
+      "authenticated": true,
+      "pathParameters": [
+        {
+          "name": "domain",
+          "type": "string",
+          "description": "Domain ID (UUID)"
+        }
+      ],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "array",
+            "x-validation": [
+              "required",
+              "array"
+            ],
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "content": {
+                  "type": "string",
+                  "maxLength": 4096,
+                  "x-validation": [
+                    "required",
+                    "string",
+                    "max:4096"
+                  ],
+                  "x-validation-expressions": []
+                },
+                "name": {
+                  "type": "string",
+                  "maxLength": 255,
+                  "x-validation": [
+                    "required",
+                    "string",
+                    "max:255"
+                  ],
+                  "x-validation-expressions": []
+                },
+                "priority": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 65535,
+                  "nullable": true,
+                  "x-validation": [
+                    "nullable",
+                    "integer",
+                    "min:0",
+                    "max:65535"
+                  ],
+                  "x-validation-expressions": []
+                },
+                "ttl": {
+                  "type": "integer",
+                  "minimum": 60,
+                  "maximum": 86400,
+                  "nullable": true,
+                  "x-validation": [
+                    "nullable",
+                    "integer",
+                    "min:60",
+                    "max:86400"
+                  ],
+                  "x-validation-expressions": []
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "A",
+                    "AAAA",
+                    "CNAME",
+                    "MX",
+                    "TXT",
+                    "SRV",
+                    "CAA",
+                    "PTR",
+                    "ALIAS",
+                    "TLSA",
+                    "SSHFP",
+                    "NAPTR",
+                    "LOC",
+                    "WR"
+                  ],
+                  "x-validation": [
+                    "required",
+                    "string",
+                    "in:A,AAAA,CNAME,MX,TXT,SRV,CAA,PTR,ALIAS,TLSA,SSHFP,NAPTR,LOC,WR"
+                  ],
+                  "x-validation-expressions": [
+                    "Rule::in(['A', 'AAAA', 'CNAME', 'MX', 'TXT', 'SRV', 'CAA', 'PTR', 'ALIAS', 'TLSA', 'SSHFP', 'NAPTR', 'LOC', 'WR'])"
+                  ]
+                }
+              },
+              "required": [
+                "content",
+                "name",
+                "type"
+              ]
+            },
+            "x-validation-expressions": []
+          }
+        },
+        "additionalProperties": true,
+        "required": [
+          "records"
+        ]
+      },
+      "bodyRequired": true,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "DNS records updated",
+          "germanDescription": "DNS-Records aktualisiert",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "message": "DNS records updated successfully",
+              "records_count": 3
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainDnsController.php:189",
+      "routeName": "api.domains.dns.update"
+    },
+    {
+      "id": "GET /products/domains/{domain}/dnssec",
+      "group": "domains",
+      "name": "dnssecIndex",
+      "method": "GET",
+      "path": "/products/domains/{domain}/dnssec",
+      "summary": "Get DNSSEC status",
+      "description": "Returns the DNSSEC status and records for the domain.",
+      "germanSummary": "DNSSEC-Status abrufen",
+      "permissions": [
+        "domains:read"
+      ],
+      "authenticated": true,
+      "pathParameters": [
+        {
+          "name": "domain",
+          "type": "string",
+          "description": "Domain ID (UUID)"
+        }
+      ],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "DNSSEC status",
+          "germanDescription": "DNSSEC-Status",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "enabled": true,
+              "records": [
+                {
+                  "key_tag": 12345,
+                  "algorithm": 13,
+                  "digest_type": 2,
+                  "digest": "A1B2C3D4..."
+                }
+              ],
+              "domain": "example.de"
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainDnssecController.php:58",
+      "routeName": "api.domains.dnssec.index"
+    },
+    {
+      "id": "POST /products/domains/{domain}/dnssec/update",
+      "group": "domains",
+      "name": "dnssecUpdate",
+      "method": "POST",
+      "path": "/products/domains/{domain}/dnssec/update",
+      "summary": "Update DNSSEC",
+      "description": "Enable or disable DNSSEC for the domain. When enabling, provide DS records.",
+      "germanSummary": "DNSSEC aktualisieren",
+      "permissions": [
+        "domains:update"
+      ],
+      "authenticated": true,
+      "pathParameters": [
+        {
+          "name": "domain",
+          "type": "string",
+          "description": "Domain ID (UUID)"
+        }
+      ],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "x-validation": [
+              "required",
+              "boolean"
+            ],
+            "x-validation-expressions": []
+          },
+          "records": {
+            "type": "array",
+            "nullable": true,
+            "x-validation": [
+              "required_if:enabled,true",
+              "nullable",
+              "array"
+            ],
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "algorithm": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 255,
+                  "x-validation": [
+                    "required_with:records",
+                    "integer",
+                    "min:1",
+                    "max:255"
+                  ],
+                  "x-validation-expressions": []
+                },
+                "digest": {
+                  "type": "string",
+                  "x-validation": [
+                    "required_with:records",
+                    "string",
+                    "regex:/^[A-Fa-f0-9]+$/"
+                  ],
+                  "x-validation-expressions": []
+                },
+                "digest_type": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 4,
+                  "x-validation": [
+                    "required_with:records",
+                    "integer",
+                    "min:1",
+                    "max:4"
+                  ],
+                  "x-validation-expressions": []
+                },
+                "key_tag": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 65535,
+                  "x-validation": [
+                    "required_with:records",
+                    "integer",
+                    "min:0",
+                    "max:65535"
+                  ],
+                  "x-validation-expressions": []
+                }
+              },
+              "required": []
+            },
+            "x-validation-expressions": []
+          }
+        },
+        "additionalProperties": true,
+        "required": [
+          "enabled"
+        ]
+      },
+      "bodyRequired": true,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "DNSSEC updated",
+          "germanDescription": "DNSSEC aktualisiert",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "enabled": true,
+              "message": "DNSSEC enabled successfully"
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainDnssecController.php:146",
+      "routeName": "api.domains.dnssec.update"
+    },
+    {
+      "id": "POST /products/domains/{domain}/enableAutoRenew",
+      "group": "domains",
+      "name": "enableAutoRenew",
+      "method": "POST",
+      "path": "/products/domains/{domain}/enableAutoRenew",
+      "summary": "Enable auto-renew",
+      "description": "Enable automatic renewal for the domain.",
+      "germanSummary": "Auto-Renew aktivieren",
+      "permissions": [
+        "domains:update"
+      ],
+      "authenticated": true,
+      "pathParameters": [
+        {
+          "name": "domain",
+          "type": "string",
+          "description": "Domain ID (UUID)"
+        }
+      ],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "Auto-renew enabled",
+          "germanDescription": "Auto-Renew aktiviert",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "auto_renew": true,
+              "message": "Auto-renew enabled"
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainController.php:452",
+      "routeName": "api.domains.enable-auto-renew"
+    },
+    {
+      "id": "GET /products/domains/{domain}/nameservers",
+      "group": "domains",
+      "name": "nameserversIndex",
+      "method": "GET",
+      "path": "/products/domains/{domain}/nameservers",
+      "summary": "Get nameservers",
+      "description": "Returns the nameservers configured for the domain.",
+      "germanSummary": "Nameserver abrufen",
+      "permissions": [
+        "domains:read"
+      ],
+      "authenticated": true,
+      "pathParameters": [
+        {
+          "name": "domain",
+          "type": "string",
+          "description": "Domain ID (UUID)"
+        }
+      ],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "Nameservers",
+          "germanDescription": "Nameserver",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "nameservers": [
+                "ns1.example.com",
+                "ns2.example.com"
+              ],
+              "domain": "example.de"
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainNameserverController.php:59",
+      "routeName": "api.domains.nameservers.index"
+    },
+    {
+      "id": "POST /products/domains/{domain}/nameservers/platform",
+      "group": "domains",
+      "name": "nameserversPlatform",
+      "method": "POST",
+      "path": "/products/domains/{domain}/nameservers/platform",
+      "summary": "Switch to platform nameservers",
+      "description": "Points an active domain at our nameservers (or the reseller's whitelabel nameservers), e.g. after an incoming transfer with nameserver_mode \"external\". The zone is created first. With \"dns_import\" the records currently served by the old nameservers are taken along: \"scan\" for review, \"apply\" to write them into the zone automatically.",
+      "germanSummary": "Auf Plattform-Nameserver umstellen",
+      "permissions": [
+        "domains:update"
+      ],
+      "authenticated": true,
+      "pathParameters": [
+        {
+          "name": "domain",
+          "type": "string",
+          "description": "Domain ID (UUID)"
+        }
+      ],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {
+          "dns_import": {
+            "type": "string",
+            "enum": [
+              "none",
+              "scan",
+              "apply"
+            ],
+            "nullable": true,
+            "x-validation": [
+              "nullable",
+              "in:none,scan,apply"
+            ],
+            "x-validation-expressions": []
+          }
+        },
+        "additionalProperties": true,
+        "required": []
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "Nameserver switch started",
+          "germanDescription": "Nameserver-Umstellung gestartet",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "nameservers": [
+                "ns1.example.com",
+                "ns2.example.com"
+              ],
+              "nameserver_mode": "platform",
+              "message": "Nameserver switch to platform nameservers started"
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainNameserverController.php:238",
+      "routeName": "api.domains.nameservers.platform"
+    },
+    {
+      "id": "POST /products/domains/{domain}/nameservers/update",
+      "group": "domains",
+      "name": "nameserversUpdate",
+      "method": "POST",
+      "path": "/products/domains/{domain}/nameservers/update",
+      "summary": "Update nameservers",
+      "description": "Update the nameservers for the domain. Minimum 2, maximum 6 nameservers required.",
+      "germanSummary": "Nameserver aktualisieren",
+      "permissions": [
+        "domains:update"
+      ],
+      "authenticated": true,
+      "pathParameters": [
+        {
+          "name": "domain",
+          "type": "string",
+          "description": "Domain ID (UUID)"
+        }
+      ],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {
+          "nameservers": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 6,
+            "x-validation": [
+              "required",
+              "array",
+              "min:2",
+              "max:6"
+            ],
+            "items": {
+              "type": "string",
+              "x-validation": [
+                "required",
+                "string",
+                "regex:/^[a-zA-Z0-9][a-zA-Z0-9\\-_.]+\\.[a-zA-Z]{2,}$/"
+              ],
+              "x-validation-expressions": []
+            },
+            "x-validation-expressions": []
+          }
+        },
+        "additionalProperties": true,
+        "required": [
+          "nameservers"
+        ]
+      },
+      "bodyRequired": true,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "Nameservers updated",
+          "germanDescription": "Nameserver aktualisiert",
+          "schema": null,
+          "example": {
+            "success": true,
+            "data": {
+              "nameservers": [
+                "ns1.newprovider.com",
+                "ns2.newprovider.com"
+              ],
+              "message": "Nameservers updated successfully"
+            }
+          },
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/Domain/DomainNameserverController.php:133",
+      "routeName": "api.domains.nameservers.update"
+    }
+  ]
+}
